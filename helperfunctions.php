@@ -1,14 +1,20 @@
 <?php
 
 function escape_for_id ($string) {
-  //$string = preg_replace("/[^\x01-\x7F]/", "", $string);
-  //$string = str_replace (" ", "", $string);
   $string = preg_replace ('/[^A-Za-z0-9]/', "", $string);
   return lcfirst ($string);
 }
 
 function escape_for_xml ($string) {
   return htmlentities ($string);
+}
+
+function pretty_print_xml ($xml) {
+  $dom = new DOMDocument('1.0');
+  $dom->preserveWhiteSpace = false;
+  $dom->formatOutput = true;
+  $dom->loadXML($xml->asXML());
+  return $dom->saveXML();
 }
 
 function get_default_tool ($tool) {

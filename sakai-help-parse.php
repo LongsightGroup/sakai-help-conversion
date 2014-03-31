@@ -3,11 +3,12 @@ require 'vendor/autoload.php';
 require 'helperfunctions.php';
 
 $xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
-$xmlcontents = simplexml_load_string($xmlstub);
 
 $basepath = "/tmp/help/";
-$svnpath = "/home/samo/dev/trunk-all/help/help/src";
-$destpath = "/sakai_screensteps/";
+$svnpath = "~/dev/trunk-all/help/help/src";
+$helpxml_file = file_get_contents ("sakai.help.xml");
+$helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
+
 $instructor_file = "Sakai-10-Instructor-Guide.html";
 $student_file = "Sakai-10-Student-Guide.html";
 
@@ -15,13 +16,18 @@ $instructor_xml = simplexml_load_string (file_get_contents ($basepath . $instruc
 
 $qp = qp ($instructor_xml, 'div#TOC');
 
+$help_dirs = array();
 foreach ($qp->children('div.chapter-container') AS $chapter) {
+  $xmlcontents = simplexml_load_string($xmlstub);
+
   foreach ($chapter->branch()->children('h2') AS $chapter_h2) {
     $chapter_title = $chapter_h2->text();
     $chapter_id = escape_for_id ($chapter_title);
+    $destpath = "/sakai_screensteps_" . $chapter_id . "/";
+    $help_dirs[] = str_replace ("/", "", $destpath);
 
     $chap = $xmlcontents->addChild('bean');
-    $chap->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents.' . $chapter_id);
+    $chap->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents');
     $chap->addAttribute('class', 'org.sakaiproject.component.app.help.model.TableOfContentsBean');
 
     $chap_name = $chap->addChild('property');
@@ -85,7 +91,31 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
 
     $chap_bean_ref = $chap_bean_list->addChild('ref');
     $chap_bean_ref->addAttribute('bean', $article_id);
+
+    // Copy the file 
+    $ret = copy ($basepath . $article_href, $svnpath . $destpath . $article_file);
+    if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
   }
+ 
+  // write the xml to file
+  if (!is_dir ($svnpath . $destpath)) {
+    if (mkdir ($svnpath . $destpath)) {
+      print "INFO: made new dir " . $svnpath . $destpath . "\n";
+    } 
+    else {
+      print "ERROR: new dir " . $svnpath . $destpath . "\n";
+    }
+  }
+
+  file_put_contents ($svnpath . $destpath . "help.xml", pretty_print_xml ($xmlcontents));
 }
 
-print ($xmlcontents->asXML());
+// Write all of our possible directories to the sakai.help.xml file
+$dirs = implode (",", $help_dirs);
+$helpxml = simplexml_load_string($helpxml_file);
+$help_config = $helpxml->tool->addChild('configuration');
+$help_config->addAttribute('name', 'help.collections');
+$help_config->addAttribute('value', $dirs);
+$help_config->addAttribute('type', 'final');
+
+file_put_contents ($helpxml_file_svn, pretty_print_xml ($helpxml));
