@@ -6,6 +6,7 @@ $xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
 $xmlcontents = simplexml_load_string($xmlstub);
 
 $basepath = "/tmp/help/";
+$svnpath = "/home/samo/dev/trunk-all/help/help/src";
 $destpath = "/sakai_screensteps/";
 $instructor_file = "Sakai-10-Instructor-Guide.html";
 $student_file = "Sakai-10-Student-Guide.html";
@@ -23,8 +24,9 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $chap->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents.' . $chapter_id);
     $chap->addAttribute('class', 'org.sakaiproject.component.app.help.model.TableOfContentsBean');
 
-    $chap_name = $chap->addChild('property', 'root');
+    $chap_name = $chap->addChild('property');
     $chap_name->addAttribute('name', 'name');
+    $chap_name->addChild('value', 'root');
 
     $chap_categories = $chap->addChild('property');
     $chap_categories->addAttribute('name', 'categories');
@@ -35,10 +37,11 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $chap_bean_cat->addAttribute('id', $chapter_id);
     $chap_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
 
-    $chap_bean_name = $chap_bean_cat->addChild('property', escape_for_xml ($chapter_title));
+    $chap_bean_name = $chap_bean_cat->addChild('property');
     $chap_bean_name->addAttribute('name', 'name');
+    $chap_bean_name->addChild('value', escape_for_xml ($chapter_title));
 
-    $chap_bean_resources = $chap_bean_cat->addChild('resources');
+    $chap_bean_resources = $chap_bean_cat->addChild('property');
     $chap_bean_resources->addAttribute('name', 'resources');
 
     $chap_bean_list = $chap_bean_resources->addChild('list');
@@ -61,18 +64,22 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $bean->addAttribute('id', $article_id);
     $bean->addAttribute('class', 'org.sakaiproject.component.app.help.model.ResourceBean');
 
-    $docId = $bean->addChild('property', $article_id);
+    $docId = $bean->addChild('property');
     $docId->addAttribute('name', 'docId');
+    $docId->addChild('value', $article_id);
 
-    $name = $bean->addChild('property', $article_text);
+    $name = $bean->addChild('property');
     $name->addAttribute('name', 'name');
+    $name->addChild('value', $article_text);
 
-    $location = $bean->addChild('property', $destpath . $article_file);
+    $location = $bean->addChild('property');
     $location->addAttribute('name', 'location');
+    $location->addChild('value', $destpath . $article_file);
 
     if ($default_for_chapter) {
-      $default_property = $bean->addChild('property', get_default_tool($chapter_id));
+      $default_property = $bean->addChild('property');
       $default_property->addAttribute('name', 'defaultForTool');
+      $default_property->addChild('value', get_default_tool($chapter_id));
       $default_for_chapter = false;
     }
 
