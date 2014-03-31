@@ -5,8 +5,8 @@ require 'helperfunctions.php';
 $xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
 $xmlcontents = simplexml_load_string($xmlstub);
 
-
 $basepath = "/tmp/help/";
+$destpath = "/sakai_screensteps/";
 $instructor_file = "Sakai-10-Instructor-Guide.html";
 $student_file = "Sakai-10-Student-Guide.html";
 
@@ -20,11 +20,29 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $chapter_id = escape_for_id ($chapter_title);
 
     $chap = $xmlcontents->addChild('bean');
-    $chap->addAttribute('id', $chapter_id);
-    $chap->addAttribute('class', 'org.sakaiproject.component.app.help.model.ResourceBean');
-  }
+    $chap->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents.' . $chapter_id);
+    $chap->addAttribute('class', 'org.sakaiproject.component.app.help.model.TableOfContentsBean');
 
-  //print "    case '$chapter_id': \n      return 'sakai.$chapter_id';\n";continue;
+    $chap_name = $chap->addChild('property', 'root');
+    $chap_name->addAttribute('name', 'name');
+
+    $chap_categories = $chap->addChild('property');
+    $chap_categories->addAttribute('name', 'categories');
+
+    $chap_list = $chap_categories->addChild('list');
+
+    $chap_bean_cat = $chap_list->addChild('bean');
+    $chap_bean_cat->addAttribute('id', $chapter_id);
+    $chap_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
+
+    $chap_bean_name = $chap_bean_cat->addChild('property', escape_for_xml ($chapter_title));
+    $chap_bean_name->addAttribute('name', 'name');
+
+    $chap_bean_resources = $chap_bean_cat->addChild('resources');
+    $chap_bean_resources->addAttribute('name', 'resources');
+
+    $chap_bean_list = $chap_bean_resources->addChild('list');
+  }
 
   $default_for_chapter = true;
   foreach ($chapter->branch()->find('ul li div a') AS $article) {
@@ -49,7 +67,7 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $name = $bean->addChild('property', $article_text);
     $name->addAttribute('name', 'name');
 
-    $location = $bean->addChild('property', $article_href);
+    $location = $bean->addChild('property', $destpath . $article_file);
     $location->addAttribute('name', 'location');
 
     if ($default_for_chapter) {
@@ -58,6 +76,8 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
       $default_for_chapter = false;
     }
 
+    $chap_bean_ref = $chap_bean_list->addChild('ref');
+    $chap_bean_ref->addAttribute('bean', $article_id);
   }
 }
 
