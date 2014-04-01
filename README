@@ -1,1 +1,4 @@
 Convert external HTML to Sakai's bean-configured help format
+
+This code uses Composer for PHP dependency management:
+  https://getcomposer.org/
