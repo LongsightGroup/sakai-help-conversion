@@ -10,8 +10,8 @@ $helpxml_file = file_get_contents ("sakai.help.xml");
 $helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
 
 // This is the CSS we are going to include in each article
-$sakai_css = '<link href="/library/skin/neo-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
-$sakai_css .= '<link href="../css/neutral.css" media="screen" rel="stylesheet" type="text/css" />';
+$sakai_css =  '<link href="/library/skin/neo-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
+$sakai_css .= '<link href="/library/skin/neo-default/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
 
 // Default QueryPath options use ISO-8859-1
 $qp_options = array(
