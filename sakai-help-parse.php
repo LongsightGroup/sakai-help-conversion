@@ -5,9 +5,20 @@ require 'helperfunctions.php';
 $xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
 
 $basepath = "/tmp/help/";
-$svnpath = "~/dev/trunk-all/help/help/src";
+$svnpath = "/home/samo/dev/trunk-all/help/help/src";
 $helpxml_file = file_get_contents ("sakai.help.xml");
 $helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
+
+// This is the CSS we are going to include in each article
+$sakai_css = '<link href="/library/skin/neo-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
+$sakai_css .= '<link href="../css/neutral.css" media="screen" rel="stylesheet" type="text/css" />';
+
+// Default QueryPath options use ISO-8859-1
+$qp_options = array(
+  'convert_from_encoding' => 'UTF-8',
+  'convert_to_encoding' => 'UTF-8',
+  'strip_low_ascii' => FALSE,
+);
 
 $instructor_file = "Sakai-10-Instructor-Guide.html";
 $student_file = "Sakai-10-Student-Guide.html";
@@ -92,8 +103,25 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $chap_bean_ref = $chap_bean_list->addChild('ref');
     $chap_bean_ref->addAttribute('bean', $article_id);
 
-    // Copy the file 
-    $ret = copy ($basepath . $article_href, $svnpath . $destpath . $article_file);
+    // Manipulate the HTML file
+    $html_string = file_get_contents_utf8 ($basepath . $article_href);
+    $html_title = htmlqp ($html_string, 'title', $qp_options);
+    $help_qp = htmlqp ($html_string, 'div#wrapper', $qp_options);
+    foreach ($help_qp->find('img') AS $html_img) {
+      $old_image = $html_img->attr('src');
+      $new_image = str_replace ("../images/", "/library/image/help/", $old_image);
+      $html_img->attr('src', $new_image);
+    }
+
+    $new_html = qp(
+      QueryPath::XHTML_STUB) // create a clean XHTML file
+      ->find('title')->text($html_title->text()) // set the title
+      ->top()->find('head')->append($sakai_css)  // add the sakai css
+      ->top()->find('body')->append($help_qp)    // add our modified HTML chunk
+      ->top()->remove('div#article-header p');   // remove the Table of Contents link
+
+    $ret = $new_html->writeXHTML($svnpath . $destpath . $article_file);
+    // $ret = file_put_contents ($svnpath . $destpath . $article_file, $htmlstring);
     if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
   }
  

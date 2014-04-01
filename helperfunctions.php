@@ -17,6 +17,11 @@ function pretty_print_xml ($xml) {
   return $dom->saveXML();
 }
 
+function file_get_contents_utf8 ($filename) { 
+  $string = file_get_contents ($filename); 
+  return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding ($string, 'UTF-8, ISO-8859-1', true)); 
+} 
+
 function get_default_tool ($tool) {
   switch ($tool) {
     case 'accessibility': 
