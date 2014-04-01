@@ -1,6 +1,7 @@
 <?php
 
 function escape_for_id ($string) {
+  $string = str_replace (".html", "", $string);
   $string = preg_replace ('/[^A-Za-z0-9]/', "", $string);
   return lcfirst ($string);
 }

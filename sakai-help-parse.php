@@ -70,8 +70,7 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $article_href = $article->attr('href');
     $href_parts = explode("/", $article_href);
     $article_file = array_pop ($href_parts);
-    $article_id = str_replace (".html", "", $article_file);
-    $article_id = escape_for_id ($article_id);
+    $article_id = escape_for_id ($article_file);
 
     $bean = $xmlcontents->addChild('bean');
     $bean->addAttribute('id', $article_id);
@@ -103,21 +102,30 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $html_string = file_get_contents_utf8 ($basepath . $article_href);
     $html_title = htmlqp ($html_string, 'title', $qp_options);
     $help_qp = htmlqp ($html_string, 'div#wrapper', $qp_options);
+
+    // Loop through all images and point to /library/ location
     foreach ($help_qp->find('img') AS $html_img) {
       $old_image = $html_img->attr('src');
       $new_image = str_replace ("../images/", "/library/image/help/", $old_image);
       $html_img->attr('src', $new_image);
     }
 
-    $new_html = qp(
-      QueryPath::XHTML_STUB) // create a clean XHTML file
+    // Loop through all links and re-point them
+    foreach ($help_qp->branch()->find('a') AS $link) {
+      $old_link = $link->attr('href');
+      $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
+      $link->attr('href', $new_link);
+    }
+
+    // Build the new HTML file
+    $new_html = 
+      qp(QueryPath::XHTML_STUB) // create a clean XHTML file
       ->find('title')->text($html_title->text()) // set the title
       ->top()->find('head')->append($sakai_css)  // add the sakai css
       ->top()->find('body')->append($help_qp)    // add our modified HTML chunk
       ->top()->remove('div#article-header p');   // remove the Table of Contents link
 
     $ret = $new_html->writeXHTML($svnpath . $destpath . $article_file);
-    // $ret = file_put_contents ($svnpath . $destpath . $article_file, $htmlstring);
     if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
   }
  
