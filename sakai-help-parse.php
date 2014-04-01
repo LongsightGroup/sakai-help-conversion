@@ -71,11 +71,7 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $href_parts = explode("/", $article_href);
     $article_file = array_pop ($href_parts);
     $article_id = str_replace (".html", "", $article_file);
-    $article_id = strtolower ($article_id);
-    $article_id = str_replace (".", "", $article_id );
-    $article_id = str_replace ("--", "-", $article_id );
-    $article_id = str_replace ("--", "-", $article_id );
-    if (strrpos($article_id, "-") == (strlen($article_id)-1)) $article_id = substr ($article_id, 0,strlen($article_id) -1);
+    $article_id = escape_for_id ($article_id);
 
     $bean = $xmlcontents->addChild('bean');
     $bean->addAttribute('id', $article_id);
