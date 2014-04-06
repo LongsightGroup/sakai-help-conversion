@@ -2,16 +2,17 @@
 require 'vendor/autoload.php';
 require 'helperfunctions.php';
 
-$xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
-
 $basepath = "/tmp/help/";
 $svnpath = "/home/samo/dev/trunk-all/help/help/src";
+$toc_master_dir = $svnpath . "/sakai_toc/";
+if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
+
 $helpxml_file = file_get_contents ("sakai.help.xml");
 $helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
 
-// This is the CSS we are going to include in each article
-$sakai_css =  '<link href="/library/skin/neo-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
-$sakai_css .= '<link href="/library/skin/neo-default/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8" />';
+$instructor_file = "Sakai-10-Instructor-Guide.html";
+$guide_name = "Instructor Guide";
+$student_file = "Sakai-10-Student-Guide.html";
 
 // Default QueryPath options use ISO-8859-1
 $qp_options = array(
@@ -20,16 +21,41 @@ $qp_options = array(
   'strip_low_ascii' => FALSE,
 );
 
-$instructor_file = "Sakai-10-Instructor-Guide.html";
-$student_file = "Sakai-10-Student-Guide.html";
+// Create the beginning of the TOC 
+$xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
+$xmlcontents = simplexml_load_string($xmlstub);
 
+$toc = $xmlcontents->addChild('bean');
+$toc->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents');
+$toc->addAttribute('class', 'org.sakaiproject.component.app.help.model.TableOfContentsBean');
+$toc_name = $toc->addChild('property');
+$toc_name->addAttribute('name', 'name');
+$toc_name->addChild('value', 'root');
+$toc_categories = $toc->addChild('property');
+$toc_categories->addAttribute('name', 'categories');
+$toc_list = $toc_categories->addChild('list');
+$toc_ref = $toc_list->addChild('ref');
+$toc_ref->addAttribute('bean', escape_for_id ($guide_name));
+    
+// This is the Instructor parent-item in the TOC
+$guide_bean_cat = $xmlcontents->addChild('bean');
+$guide_bean_cat->addAttribute('id', escape_for_id ($guide_name));
+$guide_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
+
+$guide_bean_name = $guide_bean_cat->addChild('property');
+$guide_bean_name->addAttribute('name', 'name');
+$guide_bean_name->addChild('value', $guide_name);
+
+$guide_bean_resources = $guide_bean_cat->addChild('property');
+$guide_bean_resources->addAttribute('name', 'categories');
+$guide_bean_list = $guide_bean_resources->addChild('list');
+
+// Read the Screensteps HTML TOC
 $instructor_xml = simplexml_load_string (file_get_contents ($basepath . $instructor_file));
-
 $qp = qp ($instructor_xml, 'div#TOC');
 
-$help_dirs = array();
+$help_dirs = array('sakai_toc');
 foreach ($qp->children('div.chapter-container') AS $chapter) {
-  $xmlcontents = simplexml_load_string($xmlstub);
 
   foreach ($chapter->branch()->children('h2') AS $chapter_h2) {
     $chapter_title = $chapter_h2->text();
@@ -37,20 +63,8 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $destpath = "/sakai_screensteps_" . $chapter_id . "/";
     $help_dirs[] = str_replace ("/", "", $destpath);
 
-    $chap = $xmlcontents->addChild('bean');
-    $chap->addAttribute('id', 'org.sakaiproject.api.app.help.TableOfContents');
-    $chap->addAttribute('class', 'org.sakaiproject.component.app.help.model.TableOfContentsBean');
-
-    $chap_name = $chap->addChild('property');
-    $chap_name->addAttribute('name', 'name');
-    $chap_name->addChild('value', 'root');
-
-    $chap_categories = $chap->addChild('property');
-    $chap_categories->addAttribute('name', 'categories');
-
-    $chap_list = $chap_categories->addChild('list');
-
-    $chap_bean_cat = $chap_list->addChild('bean');
+    // This is the tool category
+    $chap_bean_cat = $xmlcontents->addChild('bean');
     $chap_bean_cat->addAttribute('id', $chapter_id);
     $chap_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
 
@@ -61,7 +75,12 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
     $chap_bean_resources = $chap_bean_cat->addChild('property');
     $chap_bean_resources->addAttribute('name', 'resources');
 
+    // We will fill in the list of articles below
     $chap_bean_list = $chap_bean_resources->addChild('list');
+
+    // Add this chapter to the global TOC
+    $guide_sub_cat = $guide_bean_list->addChild('ref');
+    $guide_sub_cat->addAttribute('bean', $chapter_id);
   }
 
   $default_for_chapter = true;
@@ -119,23 +138,24 @@ foreach ($qp->children('div.chapter-container') AS $chapter) {
       $link->attr('href', $new_link);
       $link->removeAttr('target');
     }
+ 
+    // write the xml to file
+    if (!is_dir ($svnpath . $destpath)) {
+      if (mkdir ($svnpath . $destpath)) {
+        print "INFO: made new dir " . $svnpath . $destpath . "\n";
+     } 
+      else {
+        print "ERROR: new dir " . $svnpath . $destpath . "\n";
+      }
+    }
 
     $ret = $help_qp->writeXHTML($svnpath . $destpath . $article_file);
     if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
   }
- 
-  // write the xml to file
-  if (!is_dir ($svnpath . $destpath)) {
-    if (mkdir ($svnpath . $destpath)) {
-      print "INFO: made new dir " . $svnpath . $destpath . "\n";
-    } 
-    else {
-      print "ERROR: new dir " . $svnpath . $destpath . "\n";
-    }
-  }
 
-  file_put_contents ($svnpath . $destpath . "help.xml", pretty_print_xml ($xmlcontents));
 }
+
+file_put_contents ($toc_master_dir . "help.xml", pretty_print_xml ($xmlcontents));
 
 // Write all of our possible directories to the sakai.help.xml file
 $dirs = implode (",", $help_dirs);
