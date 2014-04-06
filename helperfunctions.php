@@ -32,7 +32,7 @@ function get_default_tool ($tool) {
     case 'announcements': 
       return 'sakai.announcements';
     case 'assignments': 
-      return 'sakai.assignment.grades';
+      return 'sakai.assignment';
     case 'chat': 
       return 'sakai.chat';
     case 'dropBox': 
