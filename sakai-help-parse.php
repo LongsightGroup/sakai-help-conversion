@@ -135,12 +135,21 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       // Loop through all links and re-point them
       foreach ($help_qp->branch()->find('a') AS $link) {
         $old_link = $link->attr('href');
+        $link_ref = $link->attr('ref');
         $parsed_link = parse_url ($old_link);
-        if (!empty ($parsed_link['scheme'])) continue;
 
-        $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
-        $link->attr('href', $new_link);
-        $link->removeAttr('target');
+        if (!empty ($parsed_link['scheme'])) {
+          continue;
+        }
+        elseif (!empty($link_ref) && $link_ref == 'prettyPhoto') {
+          $new_link = str_replace ("../images/", "/library/image/help/", $old_link);
+          $link->attr('href', $new_link);
+        }
+        else {
+          $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
+          $link->attr('href', $new_link);
+          $link->removeAttr('target');
+        }
       }
 
       // write the xml to file
