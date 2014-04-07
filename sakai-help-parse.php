@@ -38,7 +38,6 @@ $toc_categories->addAttribute('name', 'categories');
 $toc_list = $toc_categories->addChild('list');
 
 $help_dirs = array('sakai_toc');
-$chapters_processed = array();
 
 foreach ($files AS $guide_name => $guide_xml_file) {
   $toc_ref = $toc_list->addChild('ref');
@@ -61,21 +60,13 @@ foreach ($files AS $guide_name => $guide_xml_file) {
   $qp = qp ($instructor_xml, 'div#TOC');
 
   foreach ($qp->children('div.chapter-container') AS $chapter) {
-    $this_is_a_duplicate = false;
-
     foreach ($chapter->branch()->children('h2') AS $chapter_h2) {
       $chapter_title = $chapter_h2->text();
-      $chapter_id = escape_for_id ($chapter_title);
+      $chapter_id = escape_for_id ($chapter_title . "-" . $guide_name);
 
       // Add this chapter to the global TOC
       $guide_sub_cat = $guide_bean_list->addChild('ref');
       $guide_sub_cat->addAttribute('bean', $chapter_id);
-
-      // The chapter ID must be unique
-      if (in_array ($chapter_id, $chapters_processed)) {
-        $this_is_a_duplicate = true;
-        continue;
-      }
 
       $destpath = "/sakai_screensteps_" . $chapter_id . "/";
       $help_dirs[] = str_replace ("/", "", $destpath);
@@ -94,12 +85,7 @@ foreach ($files AS $guide_name => $guide_xml_file) {
 
       // We will fill in the list of articles below
       $chap_bean_list = $chap_bean_resources->addChild('list');
-
-      $chapters_processed[] = $chapter_id;
     }
-
-    // We processed this duplicate chapter in another book
-    if ($this_is_a_duplicate) continue;
 
     $default_for_chapter = true;
     foreach ($chapter->branch()->find('ul li div a') AS $article) {
