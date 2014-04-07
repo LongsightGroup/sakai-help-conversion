@@ -162,7 +162,7 @@ foreach ($files AS $guide_name => $guide_xml_file) {
         }
       }
 
-      $ret = $help_qp->writeXHTML($svnpath . $destpath . $article_file);
+      $ret = $help_qp->writeHTML($svnpath . $destpath . $article_file);
       if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
     }
   }
