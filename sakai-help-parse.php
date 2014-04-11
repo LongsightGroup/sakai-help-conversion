@@ -38,6 +38,7 @@ $toc_categories->addAttribute('name', 'categories');
 $toc_list = $toc_categories->addChild('list');
 
 $help_dirs = array('sakai_toc');
+$articles_processed = array();
 
 foreach ($files AS $guide_name => $guide_xml_file) {
   $toc_ref = $toc_list->addChild('ref');
@@ -95,6 +96,17 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       $article_file = array_pop ($href_parts);
       $article_id = escape_for_id ($article_file);
 
+      $chap_bean_ref = $chap_bean_list->addChild('ref');
+      $chap_bean_ref->addAttribute('bean', $article_id);
+
+      // An article with the same ID is identical between the student and instructor guide
+      if (in_array ($article_id, $articles_processed)) {
+        continue;
+      }
+      else {
+        $articles_processed[] = $article_id;
+      }
+
       $bean = $xmlcontents->addChild('bean');
       $bean->addAttribute('id', $article_id);
       $bean->addAttribute('class', 'org.sakaiproject.component.app.help.model.ResourceBean');
@@ -114,12 +126,9 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       if ($default_for_chapter) {
         $default_property = $bean->addChild('property');
         $default_property->addAttribute('name', 'defaultForTool');
-        $default_property->addChild('value', get_default_tool($chapter_id));
+        $default_property->addChild('value', get_default_tool(escape_for_id($chapter_title)));
         $default_for_chapter = false;
       }
-
-      $chap_bean_ref = $chap_bean_list->addChild('ref');
-      $chap_bean_ref->addAttribute('bean', $article_id);
 
       // Manipulate the HTML file
       $html_string = file_get_contents_utf8 ($basepath . $article_href);
@@ -128,22 +137,25 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       // Loop through all images and point to /library/ location
       foreach ($help_qp->find('img') AS $html_img) {
         $old_image = $html_img->attr('src');
-        $new_image = str_replace ("../images/", "/library/image/help/", $old_image);
+        $new_image = str_replace ("../images/", "/library/image/help/en/", $old_image);
         $html_img->attr('src', $new_image);
       }
 
       // Loop through all links and re-point them
       foreach ($help_qp->branch()->find('a') AS $link) {
         $old_link = $link->attr('href');
-        $link_ref = $link->attr('ref');
+        $link_rel = $link->attr('rel');
         $parsed_link = parse_url ($old_link);
 
         if (!empty ($parsed_link['scheme'])) {
           continue;
         }
-        elseif (!empty($link_ref) && $link_ref == 'prettyPhoto') {
-          $new_link = str_replace ("../images/", "/library/image/help/", $old_link);
+        elseif (!empty($link_rel) && $link_rel == 'prettyPhoto') {
+          $new_link = str_replace ("../images/", "/library/image/help/en/", $old_link);
           $link->attr('href', $new_link);
+ 
+          // Replace jQuery prettyPhoto with featherlight
+          $link->attr('rel', 'featherlight');
         }
         else {
           $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
