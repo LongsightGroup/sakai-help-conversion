@@ -33,6 +33,10 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
      return 'sakai.synoptic.messagecenter';
    case 'whatisMyWorkspace':
      return 'sakai.iframe.myworkspace';
+   case 'whatistheMyWorkspaceMessageoftheDay':
+     return 'sakai.motd';
+   case 'whataretheMyWorkspaceRecentAnnouncements':
+     return 'sakai.synoptic.announcements';
   }
 
   // Special cases are above
