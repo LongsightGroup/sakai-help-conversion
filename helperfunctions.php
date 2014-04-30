@@ -54,11 +54,13 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
     case 'dropBox': 
       return 'sakai.dropbox';
     case 'email': 
-      return 'sakai.mailtool';
+      return 'sakai.mailsender';
     case 'emailArchive': 
       return 'sakai.mailbox';
     case 'externalToolLTI': 
       return 'sakai.basiclti';
+    case 'forms': 
+      return 'sakai.metaobj';
     case 'forums': 
       return 'sakai.forums';
     case 'gradebook': 
