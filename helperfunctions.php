@@ -101,6 +101,21 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.iframe';
     case 'wiki': 
       return 'sakai.rwiki';
+
+    // OSP Tools
+    case 'matrices': 
+      return 'osp.matrix';
+    case 'portfolioTemplates':
+      return 'osp.presTemplate';
+    case 'portfolios':
+      return 'osp.presentation';
+    case 'evaluations':
+      return 'osp.evaluation';
+    case 'glossary':
+      return 'osp.glossary';
+    case 'styles':
+      return 'osp.style';
+
     default:
      return "sakai.$tool";
   }
