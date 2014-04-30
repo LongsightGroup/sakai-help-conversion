@@ -88,7 +88,7 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       $chap_bean_list = $chap_bean_resources->addChild('list');
     }
 
-    $default_for_chapter = true;
+    $first_item_in_chapter = true;
     foreach ($chapter->branch()->find('ul li div a') AS $article) {
       $article_text = escape_for_xml ($article->text());
       $article_href = $article->attr('href');
@@ -123,11 +123,11 @@ foreach ($files AS $guide_name => $guide_xml_file) {
       $location->addAttribute('name', 'location');
       $location->addChild('value', $destpath . $article_file);
 
-      if ($default_for_chapter) {
+      $default_for_chapter = get_default_tool(escape_for_id($chapter_title), $article_id, $first_item_in_chapter);
+      if (!empty($default_for_chapter)) {
         $default_property = $bean->addChild('property');
         $default_property->addAttribute('name', 'defaultForTool');
-        $default_property->addChild('value', get_default_tool(escape_for_id($chapter_title)));
-        $default_for_chapter = false;
+        $default_property->addChild('value', $default_for_chapter);
       }
 
       // Manipulate the HTML file
@@ -176,6 +176,7 @@ foreach ($files AS $guide_name => $guide_xml_file) {
 
       $ret = $help_qp->writeHTML($svnpath . $destpath . $article_file);
       if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
+      $first_item_in_chapter = false;
     }
   }
 }

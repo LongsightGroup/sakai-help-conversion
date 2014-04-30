@@ -23,7 +23,23 @@ function file_get_contents_utf8 ($filename) {
   return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding ($string, 'UTF-8, ISO-8859-1', true)); 
 } 
 
-function get_default_tool ($tool) {
+function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
+   $tool = str_replace ("OSP", "", $tool);
+
+  switch ($article_id) {
+   case 'whatistheMyWorkspaceCalendar':
+     return 'sakai.summary.calendar';
+   case 'whataretheMyWorkspaceMessageCenterNotifications':
+     return 'sakai.synoptic.messagecenter';
+   case 'whatisMyWorkspace':
+     return 'sakai.iframe.myworkspace';
+  }
+
+  // Special cases are above
+  if (!$first_article_in_chapter) {
+    return false;
+  }
+
   switch ($tool) {
     case 'accessibility': 
       return 'sakai.accessibility';
