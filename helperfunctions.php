@@ -69,6 +69,8 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.forums';
     case 'gradebook': 
       return 'sakai.gradebook.tool';
+    case 'jobScheduler': 
+      return 'sakai.scheduler';
     case 'lessons': 
       return 'sakai.lessonbuildertool';
     case 'messages': 
@@ -95,18 +97,26 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.sections';
     case 'signUp': 
       return 'sakai.signup';
+    case 'siteArchive': 
+      return 'sakai.archive';
     case 'siteInfo': 
       return 'sakai.siteinfo';
+    case 'sitestatsAdmin': 
+      return 'sakai.sitestats.admin';
     case 'statistics': 
       return 'sakai.sitestats';
     case 'syllabus': 
       return 'sakai.syllabus';
     case 'testsQuizzes': 
       return 'sakai.samigo';
+    case 'userMembership': 
+      return 'sakai.usermembership';
     case 'webContent': 
       return 'sakai.iframe';
     case 'wiki': 
       return 'sakai.rwiki';
+    case 'worksiteSetup': 
+      return 'sakai.sitesetup';
 
     // OSP Tools
     case 'matrices': 
