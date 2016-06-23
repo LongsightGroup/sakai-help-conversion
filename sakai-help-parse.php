@@ -11,9 +11,8 @@ $helpxml_file = file_get_contents ("sakai.help.xml");
 $helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
 
 $files = array(
-  'Instructor Guide' => 'Sakai-10-Instructor-Guide.html', 
-  'Student Guide' => 'Sakai-10-Student-Guide.html', 
-  'OSP Guide' => 'Sakai-10-OSP-Guide.html'
+  'Administrator Guide' => 'Sakai-11-Administrator-Guide.html', 
+  'User Guide' => 'Sakai-11-User-Guide.html', 
 );
 
 // Default QueryPath options use ISO-8859-1

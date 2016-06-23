@@ -18,6 +18,11 @@ This code uses Composer for PHP dependency management:
 
   find /tmp/help/images/ -empty -type d -delete
 
+
+find /tmp/help -name \*.html -exec sed -i 's/js\/jquery\/jquery-1.9.1.min.js/webjars\/jquery\/1.11.3\/jquery.min.js/g' {} \;
+find /tmp/help -name \*.html -exec sed -i 's/neo-default/morpheus-default/g' {} \;
+
+
 * Parse the HTML and place it in my Sakai Git source directory 
 
   php -q sakai-help-parse.php
