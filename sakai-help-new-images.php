@@ -2,7 +2,7 @@
 <?php
 
 $imagedir = "/tmp/help/images/";
-$dest = "/home/samo/dev/trunk-all/reference/library/src/webapp/image/help/en/";
+$dest = "/home/samo/dev/trunk-git/reference/library/src/webapp/image/help/en/";
 
 $arr = scandir ($imagedir);
 

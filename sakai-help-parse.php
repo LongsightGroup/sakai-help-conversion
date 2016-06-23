@@ -3,7 +3,7 @@ require 'vendor/autoload.php';
 require 'helperfunctions.php';
 
 $basepath = "/tmp/help/";
-$svnpath = "/home/samo/dev/trunk-all/help/help/src";
+$svnpath = "/home/samo/dev/trunk-git/help/help/src";
 $toc_master_dir = $svnpath . "/sakai_toc/";
 if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
 
