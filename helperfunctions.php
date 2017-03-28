@@ -24,18 +24,18 @@ function file_get_contents_utf8 ($filename) {
 } 
 
 function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
-   $tool = str_replace ("OSP", "", $tool);
+  $tool = str_replace ("OSP", "", $tool);
 
   switch ($article_id) {
-   case 'whatistheMyWorkspaceCalendar':
+   case 'whatistheHomeCalendar':
      return 'sakai.summary.calendar';
-   case 'whataretheMyWorkspaceMessageCenterNotifications':
+   case 'whataretheHomeMessageCenterNotifications':
      return 'sakai.synoptic.messagecenter';
-   case 'whatisMyWorkspace':
+   case 'whatisHome':
      return 'sakai.iframe.myworkspace';
-   case 'whatistheMyWorkspaceMessageoftheDay':
+   case 'whatistheHomeMessageoftheDay':
      return 'sakai.motd';
-   case 'whataretheMyWorkspaceRecentAnnouncements':
+   case 'whataretheHomeRecentAnnouncements':
      return 'sakai.synoptic.announcements';
   }
 
@@ -67,8 +67,10 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.metaobj';
     case 'forums': 
       return 'sakai.forums';
-    case 'gradebook': 
+    case 'gradebookclassic': 
       return 'sakai.gradebook.tool';
+    case 'gradebook': 
+      return 'sakai.gradebookng';
     case 'jobScheduler': 
       return 'sakai.scheduler';
     case 'lessons': 
@@ -76,7 +78,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
     case 'messages': 
       return 'sakai.messages';
     case 'news': 
-      return 'sakai.news';
+      return 'sakai.simple.rss';
     case 'podcasts': 
       return 'sakai.podcasts';
     case 'polls': 
@@ -89,7 +91,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.resources';
     case 'roster': 
       return 'sakai.site.roster2';
-    case 'schedule': 
+    case 'calendar': 
       return 'sakai.schedule';
     case 'search': 
       return 'sakai.search';
@@ -107,7 +109,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.sitestats';
     case 'syllabus': 
       return 'sakai.syllabus';
-    case 'testsQuizzes': 
+    case 'testsandQuizzes': 
       return 'sakai.samigo';
     case 'userMembership': 
       return 'sakai.usermembership';
