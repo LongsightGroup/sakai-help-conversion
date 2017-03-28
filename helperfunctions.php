@@ -37,6 +37,16 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
      return 'sakai.motd';
    case 'whataretheHomeRecentAnnouncements':
      return 'sakai.synoptic.announcements';
+    case 'whatisthePreferencestool': 
+      return 'sakai.preferences';
+    case 'howdoIviewandeditmyaccountdetails': 
+      return 'sakai.singleuser';
+
+    // Special case because was going to admin help
+    case 'whatistheResourcestool': 
+      return 'sakai.resources';
+    case 'whatistheSearchtool': 
+      return 'sakai.search';
   }
 
   // Special cases are above
@@ -55,6 +65,8 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.assignment';
     case 'chat': 
       return 'sakai.chat';
+    case 'contactUs': 
+      return 'sakai.feedback';
     case 'dropBox': 
       return 'sakai.dropbox';
     case 'email': 
@@ -87,14 +99,10 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.postem';
     case 'profile': 
       return 'sakai.profile2';
-    case 'resources': 
-      return 'sakai.resources';
     case 'roster': 
       return 'sakai.site.roster2';
     case 'calendar': 
       return 'sakai.schedule';
-    case 'search': 
-      return 'sakai.search';
     case 'sectionInfo': 
       return 'sakai.sections';
     case 'signUp': 
@@ -112,7 +120,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
     case 'testsandQuizzes': 
       return 'sakai.samigo';
     case 'userMembership': 
-      return 'sakai.usermembership';
+      return 'sakai.membership';
     case 'webContent': 
       return 'sakai.iframe';
     case 'wiki': 
@@ -120,19 +128,10 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
     case 'worksiteSetup': 
       return 'sakai.sitesetup';
 
-    // OSP Tools
-    case 'matrices': 
-      return 'osp.matrix';
-    case 'portfolioTemplates':
-      return 'osp.presTemplate';
-    case 'portfolios':
-      return 'osp.presentation';
-    case 'evaluations':
-      return 'osp.evaluation';
-    case 'glossary':
-      return 'osp.glossary';
-    case 'styles':
-      return 'osp.style';
+    // Dont allow admin tool defaults
+    case 'resources': 
+    case 'search': 
+      return null;
 
     default:
      return "sakai.$tool";
