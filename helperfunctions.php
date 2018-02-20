@@ -7,7 +7,7 @@ function escape_for_id ($string) {
 }
 
 function escape_for_xml ($string) {
-  return html_entity_decode ($string, ENT_XML1);
+  return htmlspecialchars (html_entity_decode ($string, ENT_XHTML));
 }
 
 function pretty_print_xml ($xml) {

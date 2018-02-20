@@ -76,7 +76,7 @@ foreach ($manuals->site->manuals AS $manual) {
 
     $chap_bean_name = $chap_bean_cat->addChild('property');
     $chap_bean_name->addAttribute('name', 'name');
-    $chap_bean_name->addChild('value', escape_for_xml ($chapter_title));
+    $chap_bean_name->addChild('value', escape_for_xml ($chapter->title));
 
     $chap_bean_resources = $chap_bean_cat->addChild('property');
     $chap_bean_resources->addAttribute('name', 'resources');
@@ -113,13 +113,13 @@ foreach ($manuals->site->manuals AS $manual) {
 
       $name = $bean->addChild('property');
       $name->addAttribute('name', 'name');
-      $name->addChild('value', $article_text);
+      $name->addChild('value', escape_for_xml($a->article->title));
 
       $location = $bean->addChild('property');
       $location->addAttribute('name', 'location');
       $location->addChild('value', $destpath . $article_file);
 
-      $default_for_chapter = get_default_tool(escape_for_id($chapter_title), $article_id, $first_item_in_chapter);
+      $default_for_chapter = get_default_tool(escape_for_id($chapter->title), $article_id, $first_item_in_chapter);
       if (!empty($default_for_chapter)) {
         $default_property = $bean->addChild('property');
         $default_property->addAttribute('name', 'defaultForTool');
