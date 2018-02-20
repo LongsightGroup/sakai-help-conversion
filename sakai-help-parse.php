@@ -1,26 +1,20 @@
 <?php
 require 'vendor/autoload.php';
 require 'helperfunctions.php';
+require "lib/ScreenSteps.php";
+define('SITE_ID', 5276);
+use lib\ScreenSteps;
 
 $basepath = "/tmp/help/";
-$svnpath = "/home/samo/dev/trunk-git/help/help/src";
+$svnpath = "/Users/samo/dev/trunk-git/help/help/src";
 $toc_master_dir = $svnpath . "/sakai_toc/";
 if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
 
 $helpxml_file = file_get_contents ("sakai.help.xml");
-$helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/tools/sakai.help.xml";
+$helpxml_file_svn = $svnpath . "/../../help-tool/src/webapp/WEB-INF/tools/sakai.help.xml";
 
-$files = array(
-  'Administrator Guide' => 'Sakai-11-Administrator-Guide.html', 
-  'User Guide' => 'Sakai-11-User-Guide.html', 
-);
-
-// Default QueryPath options use ISO-8859-1
-$qp_options = array(
-  'convert_from_encoding' => 'UTF-8',
-  'convert_to_encoding' => 'UTF-8',
-  'strip_low_ascii' => FALSE,
-);
+$api = new ScreenSteps('sakaiexport', 'NmH7P198y6', 'sakai');
+$manuals = $api->showSite(SITE_ID);
 
 // Create the beginning of the TOC 
 $xmlstub = file_get_contents ('sakai-help-contents-stub.xml');
@@ -39,7 +33,14 @@ $toc_list = $toc_categories->addChild('list');
 $help_dirs = array('sakai_toc');
 $articles_processed = array();
 
-foreach ($files AS $guide_name => $guide_xml_file) {
+foreach ($manuals->site->manuals AS $manual) {
+  if ($manual->id !== 68426 && $manual->id !== 68423) continue;
+  $guide_name = $manual->title;
+  $guide_name = str_replace(' (English)', '', $guide_name);
+  $guide_name = str_replace('Sakai 12', '', $guide_name);
+  $guide_name = trim($guide_name);
+  $chapters = $api->showManual(SITE_ID, $manual->id);
+
   $toc_ref = $toc_list->addChild('ref');
   $toc_ref->addAttribute('bean', escape_for_id ($guide_name));
 
@@ -55,45 +56,41 @@ foreach ($files AS $guide_name => $guide_xml_file) {
   $guide_bean_resources->addAttribute('name', 'categories');
   $guide_bean_list = $guide_bean_resources->addChild('list');
 
-  // Read the Screensteps HTML TOC
-  $instructor_xml = simplexml_load_string (file_get_contents ($basepath . $guide_xml_file));
-  $qp = qp ($instructor_xml, 'div#TOC');
+  foreach ($chapters->manual->chapters AS $id => $chapter) {
+    if ($chapter->published === false) continue;
+  
+    $articles = $api->showChapter(SITE_ID, $chapter->id);
+    $chapter_id = escape_for_id ($chapter->title . "-" . $guide_name);
 
-  foreach ($qp->children('div.chapter-container') AS $chapter) {
-    foreach ($chapter->branch()->children('h2') AS $chapter_h2) {
-      $chapter_title = $chapter_h2->text();
-      $chapter_id = escape_for_id ($chapter_title . "-" . $guide_name);
+    // Add this chapter to the global TOC
+    $guide_sub_cat = $guide_bean_list->addChild('ref');
+    $guide_sub_cat->addAttribute('bean', $chapter_id);
 
-      // Add this chapter to the global TOC
-      $guide_sub_cat = $guide_bean_list->addChild('ref');
-      $guide_sub_cat->addAttribute('bean', $chapter_id);
+    $destpath = "/sakai_screensteps_" . $chapter_id . "/";
+    $help_dirs[] = str_replace ("/", "", $destpath);
 
-      $destpath = "/sakai_screensteps_" . $chapter_id . "/";
-      $help_dirs[] = str_replace ("/", "", $destpath);
+    // This is the tool category
+    $chap_bean_cat = $xmlcontents->addChild('bean');
+    $chap_bean_cat->addAttribute('id', $chapter_id);
+    $chap_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
 
-      // This is the tool category
-      $chap_bean_cat = $xmlcontents->addChild('bean');
-      $chap_bean_cat->addAttribute('id', $chapter_id);
-      $chap_bean_cat->addAttribute('class', 'org.sakaiproject.component.app.help.model.CategoryBean');
+    $chap_bean_name = $chap_bean_cat->addChild('property');
+    $chap_bean_name->addAttribute('name', 'name');
+    $chap_bean_name->addChild('value', escape_for_xml ($chapter_title));
 
-      $chap_bean_name = $chap_bean_cat->addChild('property');
-      $chap_bean_name->addAttribute('name', 'name');
-      $chap_bean_name->addChild('value', escape_for_xml ($chapter_title));
+    $chap_bean_resources = $chap_bean_cat->addChild('property');
+    $chap_bean_resources->addAttribute('name', 'resources');
 
-      $chap_bean_resources = $chap_bean_cat->addChild('property');
-      $chap_bean_resources->addAttribute('name', 'resources');
-
-      // We will fill in the list of articles below
-      $chap_bean_list = $chap_bean_resources->addChild('list');
-    }
+    // We will fill in the list of articles below
+    $chap_bean_list = $chap_bean_resources->addChild('list');
 
     $first_item_in_chapter = true;
-    foreach ($chapter->branch()->find('ul li div a') AS $article) {
-      $article_text = escape_for_xml ($article->text());
-      $article_href = $article->attr('href');
-      $href_parts = explode("/", $article_href);
-      $article_file = array_pop ($href_parts);
-      $article_id = escape_for_id ($article_file);
+
+    foreach ($articles->chapter->articles AS $article) {
+      $a = $api->showArticle(SITE_ID, $article->id);
+      $article_text = escape_for_xml ($a->article->html_body);
+      $article_id = escape_for_id ($a->article->title);
+      $article_file = $article_id . '.html';
 
       $chap_bean_ref = $chap_bean_list->addChild('ref');
       $chap_bean_ref->addAttribute('bean', $article_id);
@@ -129,41 +126,6 @@ foreach ($files AS $guide_name => $guide_xml_file) {
         $default_property->addChild('value', $default_for_chapter);
       }
 
-      // Manipulate the HTML file
-      $html_string = file_get_contents_utf8 ($basepath . $article_href);
-      $help_qp = htmlqp ($html_string, 'div#wrapper', $qp_options);
-
-      // Loop through all images and point to /library/ location
-      foreach ($help_qp->find('img') AS $html_img) {
-        $old_image = $html_img->attr('src');
-        $new_image = str_replace ("../images/", "/library/image/help/en/", $old_image);
-        $html_img->attr('src', $new_image);
-      }
-
-      // Loop through all links and re-point them
-      foreach ($help_qp->branch()->find('a') AS $link) {
-        $old_link = $link->attr('href');
-        $link_rel = $link->attr('rel');
-        $parsed_link = parse_url ($old_link);
-
-        if (!empty ($parsed_link['scheme'])) {
-          continue;
-        }
-        elseif (!empty($link_rel) && $link_rel == 'prettyPhoto') {
-          $new_link = str_replace ("../images/", "/library/image/help/en/", $old_link);
-          $link->attr('href', $new_link);
- 
-          // Replace jQuery prettyPhoto with featherlight
-          $link->attr('rel', 'featherlight');
-        }
-        else {
-          $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
-          $link->attr('href', $new_link);
-          $link->removeAttr('target');
-        }
-      }
-
-      // write the xml to file
       if (!is_dir ($svnpath . $destpath)) {
         if (mkdir ($svnpath . $destpath)) {
           print "INFO: made new dir " . $svnpath . $destpath . "\n";
@@ -173,8 +135,11 @@ foreach ($files AS $guide_name => $guide_xml_file) {
         }
       }
 
-      $ret = $help_qp->writeHTML($svnpath . $destpath . $article_file);
-      if (!$ret) print "ERROR: problem copying " . $basepath . $article_href . " to " . $svnpath . $destpath . "\n";
+      $article_html = (Htmlawed::filter('<div id="wrapper">' . $article_text . '</div>'));
+      $article_html = str_replace('ARTICLE-TEXT', $article_html, file_get_contents('sakai-help-stub.html'));
+      $ret = file_put_contents($svnpath . $destpath . $article_file, $article_html);
+      if (!$ret) print "ERROR: problem copying $article_id to $svnpath$destpath$article_file \n";
+
       $first_item_in_chapter = false;
     }
   }

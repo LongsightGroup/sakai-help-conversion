@@ -7,7 +7,7 @@ function escape_for_id ($string) {
 }
 
 function escape_for_xml ($string) {
-  return htmlentities ($string);
+  return html_entity_decode ($string, ENT_XML1);
 }
 
 function pretty_print_xml ($xml) {
@@ -22,6 +22,49 @@ function file_get_contents_utf8 ($filename) {
   $string = file_get_contents ($filename); 
   return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding ($string, 'UTF-8, ISO-8859-1', true)); 
 } 
+
+function clean_html($html_string) {
+  // Default QueryPath options use ISO-8859-1
+  $qp_options = array(
+    'convert_from_encoding' => 'UTF-8',
+    'convert_to_encoding' => 'UTF-8',
+    'strip_low_ascii' => FALSE,
+  );
+
+  $help_qp = htmlqp ($html_string, 'div#wrapper', $qp_options);
+
+  // Loop through all images and point to /library/ location
+  foreach ($help_qp->find('img') AS $html_img) {
+    $old_image = $html_img->attr('src');
+    $new_image = str_replace ("../images/", "/library/image/help/en/", $old_image);
+    $html_img->attr('src', $new_image);
+  }
+
+  // Loop through all links and re-point them
+  foreach ($help_qp->branch()->find('a') AS $link) {
+    $old_link = $link->attr('href');
+    $link_rel = $link->attr('rel');
+    $parsed_link = parse_url ($old_link);
+
+    if (!empty ($parsed_link['scheme'])) {
+      continue;
+    }
+    elseif (!empty($link_rel) && $link_rel == 'prettyPhoto') {
+      $new_link = str_replace ("../images/", "/library/image/help/en/", $old_link);
+      $link->attr('href', $new_link);
+
+      // Replace jQuery prettyPhoto with featherlight
+      $link->attr('rel', 'featherlight');
+    }
+    else {
+      $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
+      $link->attr('href', $new_link);
+      $link->removeAttr('target');
+    }
+  }
+
+  return $help_qp->html();
+}
 
 function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
   $tool = str_replace ("OSP", "", $tool);
