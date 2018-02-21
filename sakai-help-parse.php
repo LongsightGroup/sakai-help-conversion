@@ -95,6 +95,13 @@ foreach ($manuals->site->manuals AS $manual) {
       $chap_bean_ref = $chap_bean_list->addChild('ref');
       $chap_bean_ref->addAttribute('bean', $article_id);
 
+      if (stripos( $a->article->title, "What are some guidelines") !== FALSE ) {
+      //var_dump($a);die();
+      }
+      else {
+        //print $a->article->title ."\n";
+      }
+
       // An article with the same ID is identical between the student and instructor guide
       if (in_array ($article_id, $articles_processed)) {
         continue;
@@ -139,6 +146,7 @@ foreach ($manuals->site->manuals AS $manual) {
       $article_html = (Htmlawed::filter('<div id="wrapper"><div id="article-content">' . $article_header . 
         '<div id="article-description">' . $article_text . '</div></div></div>'));
       $article_html = str_replace('ARTICLE-TEXT', $article_html, file_get_contents('sakai-help-stub.html'));
+      $article_html = clean_html ($article_html);
       $ret = file_put_contents($svnpath . $destpath . $article_file, $article_html);
       if (!$ret) print "ERROR: problem copying $article_id to $svnpath$destpath$article_file \n";
 

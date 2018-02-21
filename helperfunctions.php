@@ -24,6 +24,8 @@ function file_get_contents_utf8 ($filename) {
 } 
 
 function clean_html($html_string) {
+  $html_string = preg_replace("/\.png\?1\d{9,10}/", ".png", $html_string);
+
   // Default QueryPath options use ISO-8859-1
   $qp_options = array(
     'convert_from_encoding' => 'UTF-8',
@@ -31,14 +33,16 @@ function clean_html($html_string) {
     'strip_low_ascii' => FALSE,
   );
 
-  $help_qp = htmlqp ($html_string, 'div#wrapper', $qp_options);
+  $help_qp = htmlqp ($html_string, NULL, $qp_options);
 
   // Loop through all images and point to /library/ location
+  /*
   foreach ($help_qp->find('img') AS $html_img) {
     $old_image = $html_img->attr('src');
     $new_image = str_replace ("../images/", "/library/image/help/en/", $old_image);
     $html_img->attr('src', $new_image);
   }
+  */
 
   // Loop through all links and re-point them
   foreach ($help_qp->branch()->find('a') AS $link) {
@@ -56,8 +60,13 @@ function clean_html($html_string) {
       // Replace jQuery prettyPhoto with featherlight
       $link->attr('rel', 'featherlight');
     }
-    else {
-      $new_link = "content.hlp?docId=" . escape_for_id ($old_link);
+    else if (strpos($old_link, '../../68426/l/') !== FALSE) {
+      $tmp = str_replace('../../68426/l/', '', $old_link);
+      $pieces = explode('-', $tmp);
+      array_shift($pieces);
+      $mod_link = implode(' ', $pieces);
+      $new_link = "content.hlp?docId=" . escape_for_id ($mod_link);
+      var_dump($new_link);
       $link->attr('href', $new_link);
       $link->removeAttr('target');
     }
