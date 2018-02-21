@@ -88,7 +88,7 @@ foreach ($manuals->site->manuals AS $manual) {
 
     foreach ($articles->chapter->articles AS $article) {
       $a = $api->showArticle(SITE_ID, $article->id);
-      $article_text = escape_for_xml ($a->article->html_body);
+      $article_text = $a->article->html_body;
       $article_id = escape_for_id ($a->article->title);
       $article_file = $article_id . '.html';
 
@@ -135,7 +135,9 @@ foreach ($manuals->site->manuals AS $manual) {
         }
       }
 
-      $article_html = (Htmlawed::filter('<div id="wrapper">' . $article_text . '</div>'));
+      $article_header = '<div id="article-header"><h1 class="article-title">' . $a->article->title . '</h1></div>';
+      $article_html = (Htmlawed::filter('<div id="wrapper"><div id="article-content">' . $article_header . 
+        '<div id="article-description">' . $article_text . '</div></div></div>'));
       $article_html = str_replace('ARTICLE-TEXT', $article_html, file_get_contents('sakai-help-stub.html'));
       $ret = file_put_contents($svnpath . $destpath . $article_file, $article_html);
       if (!$ret) print "ERROR: problem copying $article_id to $svnpath$destpath$article_file \n";
