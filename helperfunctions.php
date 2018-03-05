@@ -24,7 +24,7 @@ function file_get_contents_utf8 ($filename) {
 } 
 
 function clean_html($html_string) {
-  $html_string = preg_replace("/\.png\?1\d{9,10}/", ".png", $html_string);
+  $html_string = preg_replace("/\.png\?([^\"])*\"/", ".png\"", $html_string);
 
   // Default QueryPath options use ISO-8859-1
   $qp_options = array(
@@ -66,7 +66,6 @@ function clean_html($html_string) {
       array_shift($pieces);
       $mod_link = implode(' ', $pieces);
       $new_link = "content.hlp?docId=" . escape_for_id ($mod_link);
-      var_dump($new_link);
       $link->attr('href', $new_link);
       $link->removeAttr('target');
     }

@@ -92,6 +92,11 @@ foreach ($manuals->site->manuals AS $manual) {
       $article_id = escape_for_id ($a->article->title);
       $article_file = $article_id . '.html';
 
+      if (empty($article_id)) {
+        print "Found empty id: " . print_r($a->article) . "\n";
+        continue;
+      }
+
       $chap_bean_ref = $chap_bean_list->addChild('ref');
       $chap_bean_ref->addAttribute('bean', $article_id);
 
