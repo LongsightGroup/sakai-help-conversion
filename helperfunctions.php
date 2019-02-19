@@ -110,6 +110,8 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.accessibility';
     case 'myWorkspace': 
       return 'sakai.iframe.myworkspace';
+    case 'overview': 
+      return 'sakai.iframe.site';
     case 'announcements': 
       return 'sakai.announcements';
     case 'assignments': 
