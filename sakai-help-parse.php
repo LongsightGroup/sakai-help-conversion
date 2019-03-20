@@ -34,10 +34,11 @@ $help_dirs = array('sakai_toc');
 $articles_processed = array();
 
 foreach ($manuals->site->manuals AS $manual) {
-  if ($manual->id !== 68426 && $manual->id !== 68423) continue;
+  if ($manual->id !== 81161 && $manual->id !== 81162) continue;
   $guide_name = $manual->title;
   $guide_name = str_replace(' (English)', '', $guide_name);
   $guide_name = str_replace('Sakai 12', '', $guide_name);
+  $guide_name = str_replace('Sakai 19', '', $guide_name);
   $guide_name = trim($guide_name);
   $chapters = $api->showManual(SITE_ID, $manual->id);
 
