@@ -6,7 +6,7 @@ define('SITE_ID', 5276);
 use lib\ScreenSteps;
 
 $basepath = "/tmp/help/";
-$svnpath = "/Users/samo/dev/trunk-git/help/help/src";
+$svnpath = "/Users/samo/dev/sakai-19/help/help/src";
 $toc_master_dir = $svnpath . "/sakai_toc/";
 if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
 
@@ -149,8 +149,8 @@ foreach ($manuals->site->manuals AS $manual) {
       }
 
       $article_header = '<div id="article-header"><h1 class="article-title">' . $a->article->title . '</h1></div>';
-      $article_html = (Htmlawed::filter('<div id="wrapper"><div id="article-content">' . $article_header . 
-        '<div id="article-description">' . $article_text . '</div></div></div>'));
+      $article_html = Htmlawed::filter('<div id="wrapper"><div id="article-content">' . $article_header . 
+        '<div id="article-description">' . $article_text . '</div></div></div>', ['unique_ids' => 1] );
       $article_html = str_replace('ARTICLE-TEXT', $article_html, file_get_contents('sakai-help-stub.html'));
       $article_html = clean_html ($article_html);
       $ret = file_put_contents($svnpath . $destpath . $article_file, $article_html);
