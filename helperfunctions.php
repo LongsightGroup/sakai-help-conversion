@@ -49,6 +49,7 @@ function clean_html($html_string) {
     $old_link = $link->attr('href');
     $link_rel = $link->attr('rel');
     $parsed_link = parse_url ($old_link);
+    $link_regex = '/..\/..\/\d+\/l\//';
 
     if (!empty ($parsed_link['scheme'])) {
       continue;
@@ -60,8 +61,8 @@ function clean_html($html_string) {
       // Replace jQuery prettyPhoto with featherlight
       $link->attr('rel', 'featherlight');
     }
-    else if (strpos($old_link, '../../68426/l/') !== FALSE) {
-      $tmp = str_replace('../../68426/l/', '', $old_link);
+    else if (preg_match($link_regex, $old_link) !== FALSE) {
+      $tmp = preg_replace($link_regex, '', $old_link);
       $pieces = explode('-', $tmp);
       array_shift($pieces);
       $mod_link = implode(' ', $pieces);
