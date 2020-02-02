@@ -151,7 +151,9 @@ foreach ($manuals->site->manuals AS $manual) {
       $article_header = '<div id="article-header"><h1 class="article-title">' . $a->article->title . '</h1></div>';
       $article_html = Htmlawed::filter('<div id="wrapper"><div id="article-content">' . $article_header . 
         '<div id="article-description">' . $article_text . '</div></div></div>', ['unique_ids' => 1] );
-      $article_html = str_replace('ARTICLE-TEXT', $article_html, file_get_contents('sakai-help-stub.html'));
+      $article_html = str_replace('{{ARTICLE-TEXT}}', $article_html, file_get_contents('sakai-help-stub.html'));
+      $article_html = str_replace('{{ARTICLE-DESCRIPTION}}', $default_for_chapter, $article_html);
+      $article_html = str_replace('{{ARTICLE-TITLE}}', $a->article->title, $article_html);
       $article_html = clean_html ($article_html);
       $ret = file_put_contents($svnpath . $destpath . $article_file, $article_html);
       if (!$ret) print "ERROR: problem copying $article_id to $svnpath$destpath$article_file \n";
