@@ -6,7 +6,7 @@ define('SITE_ID', 5276);
 use lib\ScreenSteps;
 
 $basepath = "/tmp/help/";
-$svnpath = "/Users/samo/dev/sakai-20/help/help/src";
+$svnpath = "/Users/samo/dev/trunk-git/help/help/src";
 $toc_master_dir = $svnpath . "/sakai_toc/";
 if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
 
@@ -97,6 +97,18 @@ foreach ($manuals->site->manuals AS $manual) {
       if (empty($article_id)) {
         print "Found empty id: " . print_r($a->article) . "\n";
         continue;
+      }
+
+      // See if the file already exists in a different case (macOS is case insensitive)
+      if ($existing_files = @scandir($svnpath . $destpath)) {
+        foreach ($existing_files AS $ef) {
+          if (strlen($ef) < 5) continue;
+
+          if (strtolower($ef) === strtolower($article_id . '.html') && $ef !== ($article_id . '.html')) {
+            $article_file = $ef;
+            $article_id = str_replace('.html', '', $ef);
+          }
+        }
       }
 
       $chap_bean_ref = $chap_bean_list->addChild('ref');

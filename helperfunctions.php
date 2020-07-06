@@ -160,6 +160,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
     case 'sectionInfo': 
       return 'sakai.sections';
     case 'signUp': 
+    case 'signup': 
       return 'sakai.signup';
     case 'siteArchive': 
       return 'sakai.archive';
