@@ -6,7 +6,7 @@ define('SITE_ID', 5276);
 use lib\ScreenSteps;
 
 $basepath = "/tmp/help/";
-$svnpath = "/Users/samo/dev/sakai-19/help/help/src";
+$svnpath = "/Users/samo/dev/sakai-20/help/help/src";
 $toc_master_dir = $svnpath . "/sakai_toc/";
 if (!is_dir($toc_master_dir)) mkdir($toc_master_dir);
 
@@ -34,11 +34,12 @@ $help_dirs = array('sakai_toc');
 $articles_processed = array();
 
 foreach ($manuals->site->manuals AS $manual) {
-  if ($manual->id !== 81161 && $manual->id !== 81162) continue;
+  if ($manual->id !== 93064 && $manual->id !== 93065) continue;
   $guide_name = $manual->title;
   $guide_name = str_replace(' (English)', '', $guide_name);
   $guide_name = str_replace('Sakai 12', '', $guide_name);
   $guide_name = str_replace('Sakai 19', '', $guide_name);
+  $guide_name = str_replace('Sakai 20', '', $guide_name);
   $guide_name = trim($guide_name);
   $chapters = $api->showManual(SITE_ID, $manual->id);
 
