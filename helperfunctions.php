@@ -131,6 +131,7 @@ function get_default_tool ($tool, $article_id, $first_article_in_chapter) {
       return 'sakai.basiclti';
     case 'forms': 
       return 'sakai.metaobj';
+    case 'discussions': 
     case 'forums': 
       return 'sakai.forums';
     case 'gradebookclassic': 
