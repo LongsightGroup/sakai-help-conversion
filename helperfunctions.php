@@ -54,6 +54,9 @@ function clean_html($html_string) {
     if (!empty ($parsed_link['scheme'])) {
       continue;
     }
+    else if (strpos($old_link, '#') === 0) {
+      continue;
+    }
     elseif (!empty($link_rel) && $link_rel == 'prettyPhoto') {
       $new_link = str_replace ("../images/", "/library/image/help/en/", $old_link);
       $link->attr('href', $new_link);
